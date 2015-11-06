@@ -15,6 +15,9 @@ BUILD_DIR	:= $(ROOT_DIR)/build
 
 JFLAGS		:= -g
 JC		:= javac
+JAVA		:= java
+
+MAIN		:= HelloWorld
 
 # --- SOURCE ----------------------------------------------------------------- #
 
@@ -28,15 +31,29 @@ CLASSPATH	:= $(BUILD_DIR)
 
 # --- RULES ------------------------------------------------------------------ #
 
+# Default is just to build classes
 all: $(JCLASS)
 
-$(JCLASS): $(BUILD_DIR)/%.class: $(SRC_DIR)/%.java | $(BUILD_DIR)
+run: $(JCLASS)
+	@echo "Running"
+	@echo
+	@$(JAVA) -cp $(CLASSPATH) $(MAIN)
+	@echo
+	@echo "Done"
+
+# Classes depend on corresponding .java files
+# Might be good to use VPATH eventually if more source organization is
+# desirable
+$(JCLASS): $(BUILD_DIR)/%.class: $(SRC_DIR)/%.java $(MAKEFILE_LIST) | $(BUILD_DIR)
 	@echo "Compiling $(<F)"
 	@$(JC) $(JFLAGS) $< -d $(dir $@)
 
+# Build directory
 $(BUILD_DIR):
 	@mkdir -p $@
 
+# All generated files are go in BUILD_DIR, so we can just clean by removing
+# that
 .PHONY: clean
 clean:
 	@echo "Cleaning"
